@@ -61,7 +61,7 @@ resources:
       service: hana
       service-plan: hdi-shared
       config:
-        database_id: da14b788-d8c5-4972-8408-2de47295e984 #--トレーニング環境作業用
+        database_id: ca6f454c-abc2-43b9-9bc1-ba38b10af4ff #--トレーニング環境作業用
   - name: listreport_demo-destination-service
     type: org.cloudfoundry.managed-service
     parameters:
