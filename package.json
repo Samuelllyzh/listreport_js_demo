@@ -8,7 +8,9 @@
   "dependencies": {
     "@sap/cds": "^7",
     "express": "^4",
-    "@sap/cds-hana": "^2"
+    "@sap/cds-hana": "^2",
+    "@sap/xssec": "^3",
+    "passport": "^0"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1",
@@ -20,7 +22,8 @@
   "cds": {
     "requires": {
       "[production]": {
-        "db": "hana"
+        "db": "hana",
+        "auth": "xsuaa"
       },
       "db": "hana"
     }
