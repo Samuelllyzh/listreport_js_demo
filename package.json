@@ -20,7 +20,8 @@
     "requires": {
       "[production]": {
         "db": "hana"
-      }
+      },
+      "db": "hana"
     }
   }
 }
