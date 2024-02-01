@@ -3,94 +3,137 @@ ID: listreport_demo
 description: A simple CAP project.
 version: 1.0.0
 modules:
-  - name: listreport_demo-srv
-    type: nodejs
-    path: gen/srv
-    requires:
-      - name: listreport_demo-db
-      - name: uaa_listreport_demo
-    provides:
-      - name: srv-api
-        properties:
-          srv-url: ${default-url}
+- name: listreport_demo-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: listreport_demo-db
+  - name: uaa_listreport_demo
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: listreport_demo-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: listreport_demo-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: listreport_demo-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: listreport_demo-destination-service
     parameters:
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm
-  - name: listreport_demo-db-deployer
-    type: hdb
-    path: gen/db
-    requires:
-      - name: listreport_demo-db
+      content-target: true
+  - name: listreport_demo_html_repo_host
     parameters:
-      buildpack: nodejs_buildpack
-  - name: listreport_demo-destination-content
-    type: com.sap.application.content
-    requires:
-      - name: listreport_demo-destination-service
-        parameters:
-          content-target: true
-      - name: listreport_demo_html_repo_host
-        parameters:
-          service-key:
-            name: listreport_demo_html_repo_host-key
-      - name: uaa_listreport_demo
-        parameters:
-          service-key:
-            name: uaa_listreport_demo-key
+      service-key:
+        name: listreport_demo_html_repo_host-key
+  - name: uaa_listreport_demo
     parameters:
-      content:
+      service-key:
+        name: uaa_listreport_demo-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: listreportManagedApprouter_listreport_demo_html_repo_host
+          ServiceInstanceName: listreport_demo-html5-app-host-service
+          ServiceKeyName: listreport_demo_html_repo_host-key
+          sap.cloud.service: listreportManagedApprouter
+        - Authentication: OAuth2UserTokenExchange
+          Name: listreportManagedApprouter_uaa_listreport_demo
+          ServiceInstanceName: listreport_demo-xsuaa-service
+          ServiceKeyName: uaa_listreport_demo-key
+          sap.cloud.service: listreportManagedApprouter
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: listreport_demo-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: listreport_demo_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - listreportui.zip
+      name: listreportui
+      target-path: resources/
+- name: listreportui
+  type: html5
+  path: app/listreport_ui
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: listreport_demo-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    config:
+      database_id: ca6f454c-abc2-43b9-9bc1-ba38b10af4ff
+    service: hana
+    service-plan: hdi-shared
+- name: listreport_demo-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
         instance:
           destinations:
-            - Name: listreportManagedApprouter_listreport_demo_html_repo_host
-              ServiceInstanceName: listreport_demo-html5-app-host-service
-              ServiceKeyName: listreport_demo_html_repo_host-key
-              sap.cloud.service: listreportManagedApprouter
-            - Authentication: OAuth2UserTokenExchange
-              Name: listreportManagedApprouter_uaa_listreport_demo
-              ServiceInstanceName: listreport_demo-xsuaa-service
-              ServiceKeyName: uaa_listreport_demo-key
-              sap.cloud.service: listreportManagedApprouter
-          existing_destinations_policy: ignore
-    build-parameters:
-      no-source: true
-resources:
-  - name: listreport_demo-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
-      config:
-        database_id: ca6f454c-abc2-43b9-9bc1-ba38b10af4ff #--トレーニング環境作業用
-  - name: listreport_demo-destination-service
-    type: org.cloudfoundry.managed-service
-    parameters:
-      config:
-        HTML5Runtime_enabled: true
-        version: 1.0.0
-      service: destination
-      service-name: listreport_demo-destination-service
-      service-plan: lite
-  - name: listreport_demo_html_repo_host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-name: listreport_demo-html5-app-host-service
-      service-plan: app-host
-  - name: uaa_listreport_demo
-    type: org.cloudfoundry.managed-service
-    parameters:
-      path: ./xs-security.json
-      service: xsuaa
-      service-name: listreport_demo-xsuaa-service
-      service-plan: application
-      config:
-        xsappname: listreport_demo-xsapp
-        tenant-mode: dedicated
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: listreport_demo-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: listreport_demo-destination-service
+    service-plan: lite
+  requires:
+  - name: srv-api
+- name: listreport_demo_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: listreport_demo-html5-app-host-service
+    service-plan: app-host
+- name: uaa_listreport_demo
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: listreport_demo-xsapp
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: listreport_demo-xsuaa-service
+    service-plan: application
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npx cds build --production
+  - builder: custom
+    commands:
+    - npx cds build --production
