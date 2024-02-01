@@ -1,40 +1,90 @@
-_schema-version: '3.1'
+_schema-version: "3.1"
 ID: listreport_demo
+description: A simple CAP project.
 version: 1.0.0
-description: "A simple CAP project."
+modules:
+- name: listreport_demo-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: listreport_demo-db
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: listreport_demo-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: listreport_demo-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: listreport_demo-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: listreport_demo-destination-service
+    parameters:
+      content-target: true
+  - name: listreport_demo_html_repo_host
+    parameters:
+      service-key:
+        name: listreport_demo_html_repo_host-key
+  - name: uaa_listreport_demo
+    parameters:
+      service-key:
+        name: uaa_listreport_demo-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: listreportManagedApprouter_listreport_demo_html_repo_host
+          ServiceInstanceName: listreport_demo-html5-app-host-service
+          ServiceKeyName: listreport_demo_html_repo_host-key
+          sap.cloud.service: listreportManagedApprouter
+        - Authentication: OAuth2UserTokenExchange
+          Name: listreportManagedApprouter_uaa_listreport_demo
+          ServiceInstanceName: listreport_demo-xsuaa-service
+          ServiceKeyName: uaa_listreport_demo-key
+          sap.cloud.service: listreportManagedApprouter
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+resources:
+- name: listreport_demo-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: listreport_demo-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      version: 1.0.0
+    service: destination
+    service-name: listreport_demo-destination-service
+    service-plan: lite
+- name: listreport_demo_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: listreport_demo-html5-app-host-service
+    service-plan: app-host
+- name: uaa_listreport_demo
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: listreport_demo-xsuaa-service
+    service-plan: application
 parameters:
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npx cds build --production
-modules:
-  - name: listreport_demo-srv
-    type: nodejs
-    path: gen/srv
-    parameters:
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm
-    provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
-        properties:
-          srv-url: ${default-url}
-    requires:
-      - name: listreport_demo-db
-
-  - name: listreport_demo-db-deployer
-    type: hdb
-    path: gen/db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
-      - name: listreport_demo-db
-
-resources:
-  - name: listreport_demo-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
+  - builder: custom
+    commands:
+    - npx cds build --production
