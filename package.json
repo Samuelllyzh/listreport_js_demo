@@ -7,12 +7,20 @@
   "private": true,
   "dependencies": {
     "@sap/cds": "^7",
-    "express": "^4"
+    "express": "^4",
+    "@sap/cds-hana": "^2"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1"
   },
   "scripts": {
     "start": "cds-serve"
+  },
+  "cds": {
+    "requires": {
+      "[production]": {
+        "db": "hana"
+      }
+    }
   }
 }
