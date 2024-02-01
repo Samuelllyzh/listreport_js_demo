@@ -1,24 +1,37 @@
 using CatalogService as service from '../../srv/cat-service';
 
-annotate service.Books with @(
-    UI.LineItem : [
+
+////////////////////////////////////////////////////////////////////////////
+//	List Page                                                             //
+////////////////////////////////////////////////////////////////////////////
+annotate service.Books with @(UI: {
+  SelectionFields: [
+    ID,
+    title,
+    stock
+  ],
+  LineItem: [
         {
             $Type : 'UI.DataField',
-            Label : 'ID',
+            Label : '编号',
             Value : ID,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'title',
+            Label : '书名',
             Value : title,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'stock',
+            Label : '在库',
             Value : stock,
         },
-    ]
-);
+    ],
+});
+
+////////////////////////////////////////////////////////////////////////////
+//	object Page                                                           //
+////////////////////////////////////////////////////////////////////////////
 annotate service.Books with @(
     UI.FieldGroup #GeneratedGroup1 : {
         $Type : 'UI.FieldGroupType',
