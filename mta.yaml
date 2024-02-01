@@ -83,7 +83,7 @@ resources:
       service-name: listreport_demo-xsuaa-service
       service-plan: application
       config:
-        xsappname: listreport_demo-${org}-${space}
+        xsappname: listreport_demo-xsapp
         tenant-mode: dedicated
 parameters:
   enable-parallel-deployments: true
