@@ -29,6 +29,12 @@ annotate service.Books with @(UI: {
     ],
 });
 
+// hidden search fields
+annotate service.Books with @Capabilities: {
+    SearchRestrictions: {Searchable: false}
+};
+
+
 ////////////////////////////////////////////////////////////////////////////
 //	object Page                                                           //
 ////////////////////////////////////////////////////////////////////////////
