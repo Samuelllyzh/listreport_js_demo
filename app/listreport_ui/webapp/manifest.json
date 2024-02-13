@@ -96,7 +96,6 @@
       "css": []
     },
     "routing": {
-      "config": {},
       "routes": [
         {
           "pattern": ":?query:",
@@ -137,6 +136,15 @@
               "editableHeaderContent": false,
               "contextPath": "/Books"
             }
+          }
+        }
+      }
+    },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ListReport.ListReportController#listreportui::BooksList": {
+            "controllerName": "listreportui.ext.controller.BooksListContro"
           }
         }
       }

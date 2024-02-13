@@ -30,8 +30,7 @@
             "[production]": {
                 "db": "hana",
                 "auth": "xsuaa"
-            },
-            "db": "hana"
+            }
         }
     },
     "sapux": [
