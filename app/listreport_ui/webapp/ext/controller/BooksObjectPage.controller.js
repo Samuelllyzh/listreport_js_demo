@@ -29,6 +29,23 @@ sap.ui.define(['sap/ui/core/mvc/ControllerExtension'], function (ControllerExten
 				},
 				// 保存按钮按下,保存处理前
 				onBeforeSave: function (oEvent) {
+					// 获取字段项目的控制器
+					let stockCtrl = this.getView().byId("listreportui::BooksObjectPage--fe::FormContainer::GeneratedFacet1::FormElement::DataField::stock::Field-edit");
+					// 清除所有的文本框状态
+					stockCtrl.setValueState();
+					stockCtrl.setValueStateText("");
+
+					// 入力check
+					let errorFlg = false;
+					// stock check
+					let stockInputvalue = stockCtrl.mProperties.value;
+					if (stockInputvalue < 100) {
+						stockCtrl.setValueState("Error");
+						stockCtrl.setValueStateText("在库不能小于100");
+						errorFlg = true;
+					}
+
+					if (errorFlg) throw Error;
 
 				}
 			}
