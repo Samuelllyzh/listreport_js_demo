@@ -144,7 +144,10 @@
       "extensions": {
         "sap.ui.controllerExtensions": {
           "sap.fe.templates.ListReport.ListReportController#listreportui::BooksList": {
-            "controllerName": "listreportui.ext.controller.booksListPage"
+            "controllerName": "listreportui.ext.controller.BooksListPage"
+          },
+          "sap.fe.templates.ObjectPage.ObjectPageController#listreportui::BooksObjectPage": {
+            "controllerName": "listreportui.ext.controller.BooksObjectPage"
           }
         }
       }
